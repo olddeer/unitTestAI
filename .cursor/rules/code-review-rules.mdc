@@ -1,0 +1,1045 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Java Unit testing guidelines
+
+## Role
+
+You are a Senior software engineer with extensive experience in Java software development
+
+## Goal
+
+Analyze Java test code to identify testing improvement opportunities and present actionable alternatives to the user. When you encounter Java test code:
+
+1. **Analyze** the test code for testing issues using the principles and examples below
+2. **Identify** the most impactful improvements (test structure, assertion quality, mocking issues, test smells)
+3. **Present** 2-3 concrete solution options with pros/cons for each issue found
+4. **Ask** the user which improvement they'd like to implement
+5. **Wait** for user choice before making any changes
+6. You should run tests and fix it until they finish successfully
+
+**Example interaction:**
+```
+🔍 I found 3 unit testing improvements in this code:
+
+1. **CRITICAL: Test Independence Violation**
+- Problem: Tests share static state and depend on execution order
+- Solutions: A) Use @BeforeEach for setup B) Make tests stateless C) Use TestInstance.PER_CLASS
+
+2. **STRUCTURE: Missing Given-When-Then Structure**
+- Problem: Test logic is mixed without clear separation
+- Solutions: A) Add GWT comments B) Extract setup methods C) Use @DisplayName for clarity
+
+3. **QUALITY: Weak Assertions with JUnit Assert**
+- Solutions: A) Migrate to AssertJ B) Add fluent assertions C) Improve assertion messages
+
+Which would you like to implement? (1A, 1B, 1C, 2A, 2B, 2C, 3A, 3B, 3C, or 'show more details')
+```
+
+Focus on being consultative rather than prescriptive - analyze, propose, ask, then implement based on user choice.
+
+### Implementing These Principles
+
+These guidelines are built upon the following core principles:
+
+1.  **Clarity and Readability**: Tests should be easy to understand through descriptive names (or `@DisplayName`), a clear Given-When-Then structure, and focused assertions. Avoid excessive comments - let the code speak for itself with meaningful variable names and clear test structure. Readable tests serve as living documentation for the code under test.
+2.  **Isolation and Independence**: Each test must be self-contained, not relying on the state or outcome of other tests. Dependencies should be mocked to ensure the unit under test is validated in isolation. This leads to reliable and stable test suites.
+3.  **Comprehensive Validation**: Tests should thoroughly verify the behavior of the unit in fewer, more complete test methods rather than many small focused tests. Each test should validate multiple aspects of the unit's behavior including valid inputs, edge cases, boundary conditions, and error scenarios. Prefer comprehensive output validation over fragmented assertions across multiple test methods.
+4.  **Modern Tooling and Practices**: Leverage modern testing frameworks (JUnit 5), fluent assertion libraries (AssertJ), and mocking tools (Mockito) to write expressive, maintainable, and powerful tests. Utilize features like parameterized tests to reduce boilerplate and improve coverage of data variations.
+5.  **Maintainability and Focus**: Tests should be easy to maintain. This means avoiding tests that are too complex, test implementation details, or have multiple responsibilities. A well-written test makes it clear what is being tested and why, simplifying debugging and refactoring efforts.
+
+## Examples
+
+### Table of contents
+
+- Example 1: Use JUnit 5 Annotations
+- Example 2: Use AssertJ for Assertions
+- Example 3: Structure Tests with Given-When-Then
+- Example 4: Use Descriptive Test Names
+- Example 5: Aim for Single Responsibility in Tests
+- Example 6: Ensure Tests are Independent
+- Example 7: Use Parameterized Tests for Data Variations
+- Example 8: Utilize Mocking for Dependencies (Mockito)
+- Example 9: Consider Test Coverage, But Don't Obsess
+- Example 10: Test Scopes
+- Example 11: Code Splitting Strategies
+- Example 12: Anti-patterns and Code Smells
+- Example 13: State Management
+- Example 14: Error Handling
+- Example 15: Leverage JSpecify for Null Safety
+- Example 16: Characteristics of Good Tests (A-TRIP)
+- Example 17: Fluent Builder Pattern Testing
+- Example 18: Realistic Test Data Strategy
+- Example 19: Comprehensive Output Validation
+- Example 20: Multiple Scenario Coverage Pattern
+- Example 21: Comprehensive Test Object Creation Patterns
+- Example 22: Local Test Data Over Instance Fields
+
+### Example 1: Use JUnit 5 Annotations
+
+Title: Prefer JUnit 5 annotations over JUnit 4
+Description: Utilize annotations from the `org.junit.jupiter.api` package (e.g., `@Test`, `@BeforeEach`, `@AfterEach`, `@DisplayName`, `@Nested`, `@Disabled`) instead of their JUnit 4 counterparts (`@org.junit.Test`, `@Before`, `@After`, `@Ignore`). This ensures consistency and allows leveraging the full capabilities of JUnit 5.
+
+**Good example:**
+
+```java
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
+
+@DisplayName("My Service Test")
+class MyServiceTest {
+
+    private MyService service;
+
+    @BeforeEach
+    void setUp() {
+        service = new MyService();
+    }
+
+    @Test
+    @DisplayName("should process data correctly")
+    void processData() {
+        String input = "test";
+
+        String result = service.process(input);
+
+        assertThat(result).isEqualTo("PROCESSED:test");
+    }
+}
+```
+
+**Bad example:**
+
+```java
+import org.junit.Before;
+import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+
+public class MyServiceTest {
+
+    private MyService service;
+
+    @Before
+    public void setup() {
+        service = new MyService();
+    }
+
+    @Test
+    public void processData() {
+        String input = "test";
+        String result = service.process(input);
+        assertEquals("PROCESSED:test", result);
+    }
+}
+```
+
+### Example 2: Use AssertJ for Assertions
+
+Title: Prefer AssertJ for assertions
+Description: Employ AssertJ's fluent API (`org.assertj.core.api.Assertions.assertThat`) for more readable, expressive, and maintainable assertions compared to JUnit Jupiter's `Assertions` class or Hamcrest matchers.
+
+**Good example:**
+
+```java
+import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+
+class AssertJExampleTest {
+
+    @Test
+    void checkValue() {
+        String result = "hello";
+        assertThat(result)
+            .isEqualTo("hello")
+            .startsWith("hell")
+            .endsWith("o")
+            .hasSize(5);
+    }
+
+    @Test
+    void checkException() {
+        MyService service = new MyService();
+        assertThatThrownBy(() -> service.divide(1, 0))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessageContaining("zero");
+    }
+}
+```
+
+**Bad example:**
+
+```java
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+
+class JUnitAssertionsExampleTest {
+
+    @Test
+    void checkValue() {
+        String result = "hello";
+        assertEquals("hello", result);
+        assertTrue(result.startsWith("hell"));
+        assertTrue(result.endsWith("o"));
+        assertEquals(5, result.length());
+    }
+
+    @Test
+    void checkException() {
+        MyService service = new MyService();
+        IllegalArgumentException exception = assertThrows(
+            IllegalArgumentException.class,
+            () -> service.divide(1, 0)
+        );
+        assertTrue(exception.getMessage().contains("zero"));
+    }
+}
+```
+
+### Example 3: Structure Tests with Given-When-Then
+
+Title: Structure test methods using the Given-When-Then pattern
+Description: Organize the logic within test methods into three distinct, clearly separated phases: **Given** (setup preconditions), **When** (execute the code under test), and **Then** (verify the outcome). Use empty lines to visually separate these phases, enhancing readability and understanding of the test's purpose. Avoid excessive comments - let the code structure speak for itself.
+
+**Good example:**
+
+```java
+import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
+
+class GivenWhenThenTest {
+
+    @Test
+    void shouldCalculateSumCorrectly() {
+        Calculator calculator = new Calculator();
+        int num1 = 5;
+        int num2 = 10;
+        int expectedSum = 15;
+
+        int actualSum = calculator.add(num1, num2);
+
+        assertThat(actualSum).isEqualTo(expectedSum);
+    }
+}
+```
+
+**Bad example:**
+
+```java
+import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
+
+class UnstructuredTest {
+
+    @Test
+    void testAddition() {
+        Calculator calculator = new Calculator();
+        assertThat(calculator.add(5, 10)).isEqualTo(15);
+    }
+}
+```
+
+### Example 4: Use Descriptive Test Names
+
+Title: Write descriptive test method names or use @DisplayName
+Description: Test names should clearly communicate the scenario being tested and the expected outcome. Use either descriptive method names (e.g., following the `shouldExpectedBehaviorWhenStateUnderTest` pattern) annotation for more natural language descriptions. This makes test reports easier to understand.
+
+**Good example:**
+
+```java
+@Test
+void shouldThrowExceptionWhenDivisorIsZero() {
+    Calculator calculator = new Calculator();
+
+    assertThatThrownBy(() -> calculator.divide(1, 0))
+        .isInstanceOf(ArithmeticException.class);
+}
+
+@Test
+void additionWithPositives() {
+     Calculator calculator = new Calculator();
+     int num1 = 5;
+     int num2 = 10;
+
+     int actualSum = calculator.add(num1, num2);
+
+     assertThat(actualSum).isEqualTo(15);
+}
+```
+
+**Bad example:**
+
+```java
+@Test
+void testDivide() {
+}
+
+@Test
+void test1() {
+}
+```
+
+### Example 5: Aim for Comprehensive Scenario Testing
+
+Title: Each test method should verify a complete logical scenario comprehensively
+Description: Rather than fragmenting tests into many small focused tests, design each test to comprehensively validate a complete scenario. Group related validations together to reduce test maintenance overhead while ensuring complete coverage of the unit's behavior.
+
+**Good example:**
+
+```java
+@Test
+void shouldValidateUserDataAndReturnAppropriateErrors() {
+    User invalidUser = new User()
+        .setEmail(null)
+        .setPassword("weak")
+        .setAge(-5);
+
+    ValidationResult result = userValidator.validate(invalidUser);
+
+    assertThat(result.isValid()).isFalse();
+    assertThat(result.getErrors()).containsExactlyInAnyOrder(
+        "Email cannot be null",
+        "Password too weak", 
+        "Age must be positive"
+    );
+    assertThat(result.getErrorCount()).isEqualTo(3);
+}
+
+@Test
+void shouldValidateCompleteUserSuccessfully() {
+    User validUser = new User()
+        .setEmail("user@example.com")
+        .setPassword("StrongP@ssw0rd!")
+        .setAge(25);
+
+    ValidationResult result = userValidator.validate(validUser);
+
+    assertThat(result.isValid()).isTrue();
+    assertThat(result.getErrors()).isEmpty();
+    assertThat(result.getErrorCount()).isZero();
+}
+```
+
+**Bad example:**
+
+```java
+@Test
+void shouldRejectWhenEmailIsNull() {
+    // Only tests email null case - too fragmented
+}
+
+@Test  
+void shouldRejectWhenEmailFormatIsInvalid() {
+    // Only tests email format - too fragmented
+}
+
+@Test
+void shouldRejectWhenPasswordIsWeak() {
+    // Only tests password - too fragmented  
+}
+
+@Test
+void shouldRejectWhenAgeIsNegative() {
+    // Only tests age - results in test maintenance overhead
+}
+```
+
+### Example 6: Ensure Tests are Independent
+
+Title: Tests must be independent and runnable in any order
+Description: Avoid creating tests that depend on the state left behind by previously executed tests. Each test should set up its own required preconditions (using `@BeforeEach` or within the test method itself) and should not rely on the execution order. This ensures test suite stability and reliability, preventing flickering tests.
+
+**Good example:**
+
+```java
+class IndependentTests {
+    private MyRepository repository = new InMemoryRepository();
+
+    @Test
+    void shouldFindItemWhenItemExists() {
+        Item item = new Item("testId", "TestData");
+        repository.save(item);
+
+        Optional<Item> found = repository.findById("testId");
+
+        assertThat(found).isPresent();
+    }
+
+    @Test
+    void shouldReturnEmptyWhenItemDoesNotExist() {
+        Optional<Item> found = repository.findById("nonExistentId");
+
+        assertThat(found).isNotPresent();
+    }
+}
+```
+
+**Bad example:**
+
+```java
+class DependentTests {
+    private static MyRepository repository = new InMemoryRepository();
+    private static Item savedItem;
+
+    @Test
+    void testSave() {
+        savedItem = new Item("testId", "Data");
+        repository.save(savedItem);
+    }
+
+    @Test
+    void testFind() {
+        Optional<Item> found = repository.findById("testId");
+        assertThat(found).isPresent();
+    }
+}
+```
+
+### Example 7: Use Parameterized Tests for Data Variations
+
+Title: Use @ParameterizedTest for testing the same logic with different inputs
+Description: When testing a method's behavior across various input values or boundary conditions, leverage JUnit 5's parameterized tests (`@ParameterizedTest` with sources like `@ValueSource`, `@CsvSource`, `@MethodSource`). This avoids code duplication and clearly separates the test logic from the test data.
+
+**Good example:**
+
+```java
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
+import static org.assertj.core.api.Assertions.assertThat;
+
+class ParameterizedCalculatorTest {
+
+    private final Calculator calculator = new Calculator();
+
+    @ParameterizedTest(name = "{index} {0} + {1} = {2}")
+    @CsvSource({
+        "1,  2,  3",
+        "0,  0,  0",
+        "-5, 5,  0",
+        "10, -3, 7"
+    })
+    void additionTest(int a, int b, int expectedResult) {
+        int actualResult = calculator.add(a, b);
+
+        assertThat(actualResult).isEqualTo(expectedResult);
+    }
+}
+```
+
+**Bad example:**
+
+```java
+import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
+
+class RepetitiveCalculatorTest {
+
+    private final Calculator calculator = new Calculator();
+
+
+    @Test
+    void add1and2() {
+        assertThat(calculator.add(1, 2)).isEqualTo(3);
+    }
+
+    @Test
+    void add0and0() {
+        assertThat(calculator.add(0, 0)).isEqualTo(0);
+    }
+
+    @Test
+    void addNegative5and5() {
+        assertThat(calculator.add(-5, 5)).isEqualTo(0);
+    }
+
+    @Test
+    void add10andNegative3() {
+        assertThat(calculator.add(10, -3)).isEqualTo(7);
+    }
+}
+```
+
+### Example 8: Utilize Mocking for Dependencies (Mockito)
+
+Title: Isolate the unit under test using mocking frameworks like Mockito
+Description: Unit tests should focus solely on the logic of the class being tested (System Under Test - SUT), not its dependencies (database, network services, other classes). Use mocking frameworks like Mockito to create mock objects that simulate the behavior of these dependencies. This ensures tests are fast, reliable, and truly test the unit in isolation.
+
+**Good example:**
+
+```java
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
+class UserServiceTest {
+
+    @Mock
+    private UserRepository userRepository;
+
+    @InjectMocks
+    private UserService userService;
+
+    @Test
+    void findUserByIdSuccess() {
+        User expectedUser = new User("123", "John Doe");
+        when(userRepository.findById("123")).thenReturn(Optional.of(expectedUser));
+
+        Optional<User> actualUser = userService.findUserById("123");
+
+        assertThat(actualUser).isPresent().contains(expectedUser);
+        verify(userRepository, times(1)).findById("123");
+        verifyNoMoreInteractions(userRepository);
+    }
+}
+```
+
+**Bad example:**
+
+```java
+import org.junit.jupiter.api.Test;
+
+class UserServiceTestBad {
+
+    @Test
+    void findUserById() {
+        DatabaseConnection connection = new DatabaseConnection("localhost", 5432);
+        UserRepository userRepository = new PostgresUserRepository(connection);
+        UserService userService = new UserService(userRepository);
+
+        Optional<User> user = userService.findUserById("123");
+
+        assertThat(user).isPresent();
+    }
+}
+```
+
+### Example 9: Consider Test Coverage, But Don't Obsess
+
+Title: Use code coverage as a guide, not a definitive quality metric
+Description: Tools like JaCoCo can measure which lines of code are executed by your tests (code coverage). Aiming for high coverage (e.g., >80% line/branch coverage) is generally good practice, as it indicates most code paths are tested. However, 100% coverage doesn't guarantee bug-free code or high-quality tests. Focus on writing meaningful tests for critical logic and edge cases rather than solely chasing coverage numbers. A test might cover a line but not actually verify its correctness effectively.
+
+### Example 10: Test Scopes
+
+Title: Package-private visibility for test classes and methods
+Description: Test classes should have package-private visibility. There is no need for them to be public. Test methods should also have package-private visibility. There is no need for them to be public.
+
+### Example 11: Code Splitting Strategies
+
+Title: Organize test code effectively
+Description: - **Small Test Methods:** Keep test methods small and focused on testing a single behavior. - **Helper Methods:** Use helper methods to avoid code duplication in test setup and assertions. - **Parameterized Tests:** Utilize JUnit's parameterized tests to test the same logic with different input values.
+
+### Example 12: Anti-patterns and Code Smells
+
+Title: Common testing mistakes to avoid
+Description: - **Testing Implementation Details:** Avoid testing implementation details that might change, leading to brittle tests. Focus on testing behavior and outcomes. - **Hard-coded Values:** Avoid hard-coding values in tests. Use constants or test data to make tests more maintainable. - **Complex Test Logic:** Keep test logic simple and avoid complex calculations or conditional statements within tests. - **Ignoring Edge Cases:** Don't ignore edge cases or boundary conditions. Ensure tests cover a wide range of inputs, including invalid or unexpected values. - **Slow Tests:** Avoid slow tests that discourage developers from running them frequently. - **Over-reliance on Mocks:** Mock judiciously; too many mocks can obscure the actual behavior and make tests less reliable. - **Ignoring Test Failures:** Never ignore failing tests. Investigate and fix them promptly.
+
+### Example 13: State Management
+
+Title: Managing test state effectively
+Description: - **Isolated State:** Ensure each test has its own isolated state to avoid interference between tests. Use `@BeforeEach` to reset the state before each test. - **Immutable Objects:** Prefer immutable objects to simplify state management and avoid unexpected side effects. - **Stateless Components:** Design stateless components whenever possible to reduce the need for state management in tests.
+
+### Example 14: Error Handling
+
+Title: Testing exception scenarios effectively
+Description: - **Expected Exceptions:** Use AssertJ's `assertThatThrownBy` to verify that a method throws the expected exception under specific conditions. - **Exception Messages:** Assert the exception message to ensure the correct error is being thrown with helpful context. - **Graceful Degradation:** Test how the application handles errors and gracefully degrades when dependencies are unavailable.
+
+### Example 15: Leverage JSpecify for Null Safety
+
+Title: Utilize JSpecify annotations for explicit nullness contracts
+Description: Employ JSpecify annotations (`org.jspecify.annotations.*`) such as `@NullMarked`, `@Nullable`, and `@NonNull` to clearly define the nullness expectations of method parameters, return types, and fields within your tests and the code under test. This practice enhances code clarity, enables static analysis tools to catch potential `NullPointerExceptions` early, and improves the overall robustness of your tests and application code.
+
+**Good example:**
+
+```java
+@NullMarked
+@ExtendWith(MockitoExtension.class)
+class MyProcessorTest {
+
+    @Mock
+    private DataService mockDataService;
+
+    private MyProcessor myProcessor;
+
+    @Test
+    void shouldHandleNullDataWhenServiceReturnsNull() {
+        myProcessor = new MyProcessor(mockDataService);
+        String key = "testKey";
+        when(mockDataService.getData(key)).thenReturn(null);
+        when(mockDataService.processData(null)).thenReturn("processed:null");
+
+        String result = myProcessor.execute(key);
+
+        assertThat(result).isEqualTo("processed:null");
+    }
+}
+```
+
+**Bad example:**
+
+```java
+class MyProcessorTest {
+    @Test
+    void testProcessing() {
+        when(mockDataService.getData(key)).thenReturn("someData");
+        when(mockDataService.processData("SOMEDATA")).thenReturn("processed:SOMEDATA");
+
+        String result = myProcessor.execute(key);
+
+        assertThat(result).isEqualTo("processed:SOMEDATA");
+    }
+}
+```
+
+### Example 16: Characteristics of Good Tests (A-TRIP)
+
+Title: Ensuring tests follow A-TRIP principles
+Description: Good tests are A-TRIP: - **Automatic**: Tests should run without human intervention. - **Thorough**: Test everything that could break; cover edge cases. - **Repeatable**: Tests should produce the same results every time, in any environment. - **Independent**: Tests should not rely on each other or on the order of execution. - **Professional**: Test code is real code; keep it clean, maintainable, and well-documented.
+
+**Good example:**
+
+```java
+public class OrderProcessorTest {
+
+    private OrderProcessor processor;
+
+    @BeforeEach
+    void setUp() {
+        processor = new OrderProcessor();
+    }
+
+    @Test
+    void addItemValidItemIncreasesCount() {
+        processor.addItem("Laptop");
+        assertThat(processor.getItemCount()).isEqualTo(1);
+        processor.addItem("Mouse");
+        assertThat(processor.getItemCount()).isEqualTo(2);
+    }
+
+    @Test
+    void addItemNullItemThrowsIllegalArgumentException() {
+        assertThatThrownBy(() -> processor.addItem(null))
+            .isInstanceOf(IllegalArgumentException.class);
+    }
+}
+```
+
+**Bad example:**
+
+```java
+public class BadOrderProcessorTest {
+    private static OrderProcessor sharedProcessor = new OrderProcessor();
+
+    @Test
+    void test1AddItem() {
+        sharedProcessor.addItem("Book");
+        assertThat(sharedProcessor.getItemCount()).isEqualTo(1);
+    }
+
+    @Test
+    void test2AddAnotherItem() {
+        sharedProcessor.addItem("Pen");
+        assertThat(sharedProcessor.getItemCount()).isGreaterThan(0);
+    }
+}
+```
+
+### Example 21: Comprehensive Test Object Creation Patterns
+
+Title: Design focused helper methods for complex test object creation
+Description: When testing converters or services with many dependencies, create dedicated helper methods for each entity type. Each helper should build realistic, complete objects that can be modified for specific test scenarios using fluent setters.
+
+**Good example:**
+
+```java
+class StopToAdionaDailyStopConverterTest {
+
+    private Stop createStop(final LocalTime expectedArrivalTime) {
+        return new Stop()
+            .setId(UUID.randomUUID())
+            .setInternalSequence(100L)
+            .setLatitude(40.7128)
+            .setLongitude(-74.0060)
+            .setDescription("Test Stop")
+            .setStopType(StopType.ST)
+            .setOrderNumber(1)
+            .setPolygon("POLYGON((0 0,1 0,1 1,0 1,0 0))")
+            .setExpectedArrivalTime(expectedArrivalTime);
+    }
+
+    private LocationSettings createLocationSettings() {
+        return new LocationSettings()
+            .setId(UUID.randomUUID())
+            .setCode(12345L)
+            .setName("Test Location")
+            .setGeneralTimeZone(TimeZone.EASTERN);
+    }
+
+    @Test
+    void shouldConvertToAdionaDailyStop() {
+        Stop stop = createStop(LocalTime.of(8, 0));
+        LocationSettings locationSettings = createLocationSettings();
+        
+        AdionaDailyStop result = converter.convert(stop, /* other params */);
+        
+        assertThat(result.getLatitude()).isEqualTo(40.7128);
+        assertThat(result.getBusinessUnitName()).isEqualTo("Test Location");
+    }
+}
+```
+
+**Bad example:**
+
+```java
+class BadConverterTest {
+    @Test
+    void testConversion() {
+        Stop stop = new Stop(); // Incomplete setup
+        stop.setLatitude(1.0);  // Generic values
+        stop.setDescription("test");
+        
+        AdionaDailyStop result = converter.convert(stop, null, null, null, null, null, null, null, null, null, null, null);
+        
+        assertThat(result).isNotNull(); // Weak validation
+    }
+}
+```
+
+### Example 20: Multiple Scenario Coverage Pattern
+
+Title: Cover both positive path and edge cases comprehensively in fewer tests
+Description: Design test classes that cover the main success scenario plus critical edge cases like null handling in comprehensive test methods. This demonstrates complete validation of the unit's behavior without over-fragmenting tests.
+
+**Good example:**
+
+```java
+class ComprehensiveConverterTest {
+
+    @Test
+    void shouldConvertToAdionaDailyStopWithCompleteData() {
+        Stop stop = createStop(LocalTime.of(8, 0));
+        Run run = createRun();
+        
+        AdionaDailyStop result = converter.convert(/* all valid params */);
+        
+        assertThat(result.getLatitude()).isEqualTo(40.7128);
+        assertThat(result.getStopDescription()).isEqualTo("Test Stop");
+        assertThat(result.getBusinessUnitId()).isEqualTo(12345);
+        assertThat(result.getTimeZone()).isEqualTo("Eastern");
+        assertThat(result.getBufferUnitType()).isEqualTo(ConverterConstants.DEFAULT_BUFFER_UNIT);
+        assertThat(result.getCreatedById()).isEqualTo(ConverterConstants.DEFAULT_CREATED_BY);
+    }
+
+    @Test  
+    void shouldHandleNullValuesWithAppropriateDefaults() {
+        Stop stop = createStop(LocalTime.of(8, 30))
+            .setLatitude(null)
+            .setDescription(null)
+            .setStopType(null);
+        Run run = createRun().setInternalSequence(null);
+        
+        AdionaDailyStop result = converter.convert(/* params with nulls */);
+        
+        assertThat(result.getLatitude()).isEqualTo(ConverterConstants.DEFAULT_DOUBLE_VALUE);
+        assertThat(result.getStopDescription()).isEqualTo(ConverterConstants.DEFAULT_STOP_DESCRIPTION);
+        assertThat(result.getStopTypeCode()).isEqualTo(ConverterConstants.DEFAULT_STRING_VALUE);
+        assertThat(result.getRunTemplateId()).isEqualTo(ConverterConstants.DEFAULT_NUMBER_VALUE);
+    }
+}
+```
+
+**Bad example:**
+
+```java
+class FragmentedConverterTest {
+    @Test void testLatitude() { /* Only tests latitude */ }
+    @Test void testLongitude() { /* Only tests longitude */ }
+    @Test void testDescription() { /* Only tests description */ }
+    @Test void testNullLatitude() { /* Only tests null latitude */ }
+    @Test void testNullLongitude() { /* Only tests null longitude */ }
+    @Test void testNullDescription() { /* Only tests null description */ }
+}
+```
+
+### Example 19: Comprehensive Output Validation
+
+Title: Validate all critical aspects of complex output objects in single assertions flow
+Description: When testing converters or mappers, validate not just core fields but also derived values, defaults, and transformations. Group related assertions together for comprehensive validation that's easier to maintain.
+
+**Good example:**
+
+```java
+@Test
+void shouldConvertToAdionaDailyStopWithCompleteValidation() {
+    LocalTime expectedArrivalTime = LocalTime.of(8, 0);
+    Stop stop = createStop(expectedArrivalTime);
+    
+    when(timeSupplier.dateNow()).thenReturn("2023-01-15");
+    when(timeSupplier.dateTimeNow()).thenReturn("2023-01-15 10:30:00");
+
+    AdionaDailyStop result = converter.convert(stop, run, schedule, task, parkingLocation,
+            employee, customers, locationSettings, school, vehicle, Map.of(), LocalDate.now());
+
+    assertThat(result.getLatitude()).isEqualTo(40.7128);
+    assertThat(result.getLongitude()).isEqualTo(-74.0060);
+    assertThat(result.getStopDescription()).isEqualTo("Test Stop");
+    assertThat(result.getStopTypeCode()).isEqualTo("ST");
+    
+    assertThat(result.getBusinessUnitId()).isEqualTo(12345);
+    assertThat(result.getBusinessUnitName()).isEqualTo("Test Location");
+    assertThat(result.getTimeZone()).isEqualTo("Eastern");
+    
+    assertThat(result.getExpectedArrivalTime()).isEqualTo(expectedFormattedTime);
+    assertThat(result.getAdionaInsertTime()).isEqualTo("2023-01-15 10:30:00");
+    assertThat(result.getStopDate()).isEqualTo("2023-01-15");
+    
+    assertThat(result.getBufferUnitType()).isEqualTo(ConverterConstants.DEFAULT_BUFFER_UNIT);
+    assertThat(result.getCreatedById()).isEqualTo(ConverterConstants.DEFAULT_CREATED_BY);
+    assertThat(result.getMasterStopId()).isEqualTo(ConverterConstants.DEFAULT_MASTER_STOP_ID);
+}
+```
+
+**Bad example:**
+
+```java
+@Test
+void testConversion() {
+    AdionaDailyStop result = converter.convert(/* params */);
+    
+    assertThat(result).isNotNull(); // Insufficient validation
+    assertThat(result.getLatitude()).isNotNull(); // Missing actual value checks
+}
+```
+
+### Example 18: Realistic Test Data Strategy
+
+Title: Use meaningful, realistic test data instead of generic placeholders
+Description: Choose test values that represent real-world scenarios and actual business domain values. Use realistic coordinates, meaningful IDs, and domain-appropriate names that make test failures easier to understand and debug.
+
+**Good example:**
+
+```java
+private Stop createStop(final LocalTime expectedArrivalTime) {
+    return new Stop()
+        .setId(UUID.randomUUID())
+        .setInternalSequence(100L)
+        .setLatitude(40.7128)
+        .setLongitude(-74.0060)
+        .setDescription("Test Stop")
+        .setStopType(StopType.ST)
+        .setOrderNumber(1)
+        .setPolygon("POLYGON((0 0,1 0,1 1,0 1,0 0))")
+        .setExpectedArrivalTime(expectedArrivalTime);
+}
+
+private LocationSettings createLocationSettings() {
+    return new LocationSettings()
+        .setCode(12345L)
+        .setName("Test Location")
+        .setGeneralTimeZone(TimeZone.EASTERN);
+}
+
+private ParkingLocation createParkingLocation() {
+    return new ParkingLocation()
+        .setCity("New York")
+        .setPostalCode("10001");
+}
+```
+
+**Bad example:**
+
+```java
+private Stop createBadStop() {
+    return new Stop()
+        .setId(UUID.randomUUID())
+        .setInternalSequence(1L)                      // Generic ID
+        .setLatitude(1.0)                             // Unrealistic coordinates
+        .setLongitude(2.0)                            // Unrealistic coordinates
+        .setDescription("test")                       // Generic description
+        .setOrderNumber(999)                          // Arbitrary number
+        .setPolygon("test polygon");                  // Invalid polygon data
+}
+
+private LocationSettings createBadLocationSettings() {
+    return new LocationSettings()
+        .setCode(1L)                                  // Generic code
+        .setName("test")                              // Generic name
+        .setGeneralTimeZone(null);                    // Missing timezone
+}
+```
+
+### Example 17: Fluent Builder Pattern Testing
+
+Title: Leverage fluent setters for readable test object creation and scenario modification  
+Description: When domain objects support fluent setters, use them to create readable, chainable object construction. This pattern allows easy scenario modification for edge case testing while maintaining clear test intent.
+
+**Good example:**
+
+```java
+@Test
+void shouldHandleNullValuesWithAppropriateDefaults() {
+    Stop stop = createStop(LocalTime.of(8, 30))
+        .setLatitude(null)
+        .setLongitude(null)
+        .setDescription(null)        
+        .setStopType(null)
+        .setInternalSequence(null);
+        
+    Run run = createRun()
+        .setInternalSequence(null);
+        
+    MasterTask task = createMasterTask()
+        .setName(null)
+        .setDispatchType(null)
+        .setInternalSequence(null);
+
+    AdionaDailyStop result = converter.convert(stop, run, schedule, task, 
+        parkingLocation, employee, null, locationSettings, school, vehicle, 
+        Map.of(), LocalDate.now());
+
+    assertThat(result.getLatitude()).isEqualTo(ConverterConstants.DEFAULT_DOUBLE_VALUE);
+    assertThat(result.getStopDescription()).isEqualTo(ConverterConstants.DEFAULT_STOP_DESCRIPTION);
+    assertThat(result.getTaskName()).isEqualTo(ConverterConstants.DEFAULT_TASK_NAME);
+}
+
+@Test
+void shouldCalculatePolygonTypeForSchoolStops() {
+    Stop schoolStop = createStop(LocalTime.of(8, 0))
+        .setStopType(StopType.SC)
+        .setPolygon("POLYGON((0 0,1 0,1 1,0 1,0 0))");
+}
+```
+
+**Bad example:**
+
+```java
+@Test
+void testNullHandling() {
+    // Bad - Rebuilding entire objects for each scenario
+    Stop stop1 = new Stop();
+    stop1.setId(UUID.randomUUID());
+    stop1.setInternalSequence(100L);
+    stop1.setLatitude(null); // Only this differs
+    stop1.setLongitude(-74.0060);
+    stop1.setDescription("Test Stop");
+    
+    Stop stop2 = new Stop();
+    stop2.setId(UUID.randomUUID());
+    stop2.setInternalSequence(100L);
+    stop2.setLatitude(40.7128);
+    stop2.setLongitude(null); // Only this differs  
+    stop2.setDescription("Test Stop");
+}
+```
+
+### Example 22: Local Test Data Over Instance Fields
+
+Title: Prefer local variables over instance fields for test data
+Description: Create test data as local variables within each test method rather than using instance fields with `@BeforeEach` setup. This ensures complete test independence, clearer test intent, and eliminates hidden dependencies between tests.
+
+**Good example:**
+
+```java
+class UserServiceTest {
+    @Mock private UserRepository userRepository;
+    @InjectMocks private UserService userService;
+
+    @Test
+    void shouldCreateUserSuccessfully() {
+        User user = new User()
+            .setEmail("john@example.com")
+            .setName("John Doe");
+        UserCreationRequest request = new UserCreationRequest(user.getEmail(), user.getName());
+
+        when(userRepository.save(any(User.class))).thenReturn(user);
+
+        User result = userService.createUser(request);
+
+        assertThat(result.getEmail()).isEqualTo("john@example.com");
+        assertThat(result.getName()).isEqualTo("John Doe");
+    }
+
+    @Test  
+    void shouldValidateEmailFormat() {
+        UserCreationRequest invalidRequest = new UserCreationRequest("invalid-email", "John");
+
+        assertThatThrownBy(() -> userService.createUser(invalidRequest))
+            .isInstanceOf(ValidationException.class)
+            .hasMessageContaining("Invalid email format");
+    }
+
+    @ParameterizedTest
+    @CsvSource({
+        "2024-01-15, MONDAY, M",
+        "2024-01-16, TUESDAY, T", 
+        "2024-01-17, WEDNESDAY, W"
+    })
+    void shouldMapDayCodesCorrectly(LocalDate testDate, String dayName, String expectedCode) {
+        LocationSettings locationSettings = createLocationSettings();
+        MasterTask masterTask = createMasterTask(locationSettings);
+
+        when(scheduleService.findByFrequencyDay(eq(expectedCode))).thenReturn(Flux.just(schedule));
+
+        StepVerifier.create(dataService.processDate(locationSettings, testDate))
+            .assertNext(result -> assertThat(result.isProcessed()).isTrue())
+            .verifyComplete();
+
+        verify(scheduleService).findByFrequencyDay(eq(expectedCode));
+    }
+}
+```
+
+**Bad example:**
+
+```java
+class UserServiceTest {
+    @Mock private UserRepository userRepository;
+    @InjectMocks private UserService userService;
+    
+    private User user;                          // Instance field creates hidden dependencies
+    private UserCreationRequest request;       // Shared state between tests
+
+    @BeforeEach
+    void setUp() {
+        user = new User().setEmail("john@example.com").setName("John Doe");
+        request = new UserCreationRequest(user.getEmail(), user.getName());
+    }
+
+    @Test
+    void shouldCreateUserSuccessfully() {
+        when(userRepository.save(any(User.class))).thenReturn(user);
+        User result = userService.createUser(request);       // Uses shared instance state
+        assertThat(result.getEmail()).isEqualTo("john@example.com");
+    }
+
+    @Test
+    void shouldValidateEmailFormat() {
+        request.setEmail("invalid-email");                   // Modifies shared state!
+        assertThatThrownBy(() -> userService.createUser(request))
+            .isInstanceOf(ValidationException.class);
+    }
+}
+```
+
+**Benefits:**
+- **Complete Test Independence**: No shared state between tests
+- **Clear Test Intent**: Immediately see what data each test uses  
+- **Better Performance**: Create only objects needed for each test
+- **Easier Debugging**: No hidden setup logic to trace through
+- **Safer Refactoring**: Changes to one test don't affect others
+- **Parameterized Test Clarity**: Local variables make parameter usage obvious
+
+## Safeguards
+
+- Verify code changes compile and pass tests: `gradle clean build` or `./gradlew clean build`
