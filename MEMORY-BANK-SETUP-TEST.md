@@ -13,6 +13,7 @@
 - [Troubleshooting](#troubleshooting)
 - [Advanced Features](#advanced-features)
 - [Best Practices](#best-practices)
+- [Unit Test Mode Adaptation](#unit-test-mode-adaptation)
 
 ---
 
@@ -705,6 +706,123 @@ The Memory Bank system provides:
 - **Archive knowledge** (ARCHIVE documents patterns for Level 3-4)
 
 The system scales from simple quick fixes (Level 1, < 2 hours) to complex systems (Level 4, > 1 week) while maintaining context, enforcing disciplined development practices, and minimizing token usage.
+
+---
+
+## Unit Test Mode Adaptation
+
+### Overview
+
+An adaptation of Memory Bank specifically for **Java unit test development** is available in the `custom_modes_test/` directory. This specialized version applies the Memory Bank workflow to systematic test creation.
+
+### The Five Test Modes
+
+| Mode | Purpose | Complexity |
+|------|---------|------------|
+| **🔍 VAN_TEST** | Analyze coverage gaps, assess test complexity | All levels |
+| **📋 PLAN_TEST** | Create detailed test scenarios and mock strategy | Level 2+ |
+| **🎨 CREATIVE_TEST** | Explore test design alternatives | Level 3-4 |
+| **⚒️ IMPLEMENT_TEST** | Write tests, run them until all pass | All levels |
+| **🔍 REFLECT_TEST** | Review quality, document learnings | All levels |
+
+### Test Workflows by Complexity
+
+```
+Level 1 (< 2 hours): Simple utility, DTO
+  VAN_TEST → IMPLEMENT_TEST → REFLECT_TEST
+
+Level 2 (< 1 day): Service with 2-3 dependencies
+  VAN_TEST → PLAN_TEST → IMPLEMENT_TEST → REFLECT_TEST
+
+Level 3-4 (< 1 week): Complex service, 5+ dependencies
+  VAN_TEST → PLAN_TEST → CREATIVE_TEST → IMPLEMENT_TEST → REFLECT_TEST
+```
+
+### Quality Standards (100-Point Scale)
+
+- **Tests Pass** (40 pts): All tests green (0 failures/errors)
+- **Coverage ≥80%** (30 pts): Line coverage target met
+- **Test Count ≤10** (30 pts): Comprehensive scenarios, not fragmented
+
+### Key Differences from General Mode
+
+| Aspect | General Development | Unit Test Development |
+|--------|---------------------|----------------------|
+| **Focus** | Features, code | Unit tests, test documentation |
+| **Deliverables** | Working features | High-quality tests + coverage |
+| **Standards** | General coding | JUnit 5, AssertJ, Mockito |
+| **Quality Gates** | Code quality | Test pass rate, coverage, test count |
+| **Memory Bank** | `memory-bank/` | `test-memory-bank/` |
+
+### Java Test Rules Integration
+
+The test modes automatically reference `.cursor/rules/java-test-rule.mdc` and enforce:
+- ✅ JUnit 5 annotations (not JUnit 4)
+- ✅ AssertJ assertions (not JUnit assertions)
+- ✅ Given-When-Then structure
+- ✅ Comprehensive scenarios (avoid fragmentation)
+- ✅ Test independence (local variables only)
+- ✅ Mockito for dependencies (@Mock, @InjectMocks)
+- ✅ Parameterized tests for data variations
+
+### Quick Setup
+
+**Location**: `custom_modes_test/` directory contains:
+- 5 mode instruction files (`*_test_instructions.md`)
+- Complete setup guide (`SETUP-GUIDE.md`)
+- Quick reference card (`QUICK-REFERENCE.md`)
+- Workflow diagrams (`WORKFLOW-DIAGRAM.md`)
+
+**Setup Steps**:
+1. Read `custom_modes_test/SETUP-GUIDE.md`
+2. Configure 5 test modes in Cursor (paste instruction file contents)
+3. Switch to VAN_TEST mode
+4. Type: `VAN_TEST`
+5. Specify target class to test
+6. Follow the recommended workflow
+
+**Memory Bank Structure**:
+```
+test-memory-bank/
+├── test-tasks.md              # Single source of truth for tests
+├── activeContext.md           # Current test focus
+├── test-progress.md           # Implementation tracking
+├── creative-test-*.md         # Test design decisions
+└── reflect-test-*.md          # Test review documents
+```
+
+### Expected Benefits
+
+After using test modes for a few weeks:
+- ✅ 80%+ test coverage consistently
+- ✅ Comprehensive tests (not fragmented micro-tests)
+- ✅ Faster test development with structured workflow
+- ✅ Consistent adherence to Java test standards
+- ✅ Reusable test patterns documented
+- ✅ Team-wide test alignment
+
+### Documentation
+
+- **Full Details**: `UNIT-TEST-MODES-SUMMARY.md`
+- **Setup Guide**: `custom_modes_test/SETUP-GUIDE.md` ⭐ Start here
+- **Quick Reference**: `custom_modes_test/QUICK-REFERENCE.md`
+- **Visual Guide**: `custom_modes_test/WORKFLOW-DIAGRAM.md`
+
+### When to Use Which System
+
+**Use General Memory Bank** (VAN, PLAN, CREATIVE, IMPLEMENT, REFLECT) for:
+- Feature development
+- Bug fixes in production code
+- Architecture changes
+- System integration
+
+**Use Unit Test Modes** (VAN_TEST, PLAN_TEST, etc.) for:
+- Creating unit tests for existing code
+- Test-driven development workflows
+- Improving test coverage
+- Establishing test patterns
+
+Both systems can coexist in the same project and complement each other perfectly.
 
 ---
 
