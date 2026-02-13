@@ -1,0 +1,63 @@
+---
+description: "Visual workflow map for test development modes"
+alwaysApply: false
+---
+
+# Test Workflow Visual Map
+
+## Mode Flow
+
+```
+┌─────────────────┐
+│  ANALYZE_TEST   │  Fetch: main_test.mdc + simple/complex_rules.mdc
+│  Scan & Plan    │
+└────────┬────────┘
+         │
+    ┌────┴────┐
+    │Complexity│
+    └────┬────┘
+    ┌────┴────┐
+    │Simple?  │──Yes──> Straight to test plan
+    │Complex? │──Yes──> Present design options, then plan
+    └────┬────┘
+         │
+         v
+┌─────────────────┐
+│ IMPLEMENT_TEST  │  Fetch: main_test.mdc + java-test-rule.mdc
+│ Write & Fix     │
+│ Until 100/100   │
+└────────┬────────┘
+         │
+         v
+┌─────────────────┐
+│  REVIEW_TEST    │  Fetch: main_test.mdc only
+│  Verify & Close │
+└────────┬────────┘
+         │
+    ┌────┴────┐
+    │100/100? │──Yes──> Done (or next class -> ANALYZE_TEST)
+    │         │──No───> Back to IMPLEMENT_TEST
+    └─────────┘
+```
+
+## Quality Gate Scoring
+
+```
+ 100 points total
+ ┌──────────────────────────────────────┐
+ │  Tests Pass          40 pts  ██████  │  All green, 0 failures
+ │  Coverage >= 80%     30 pts  ████    │  Target component
+ │  Reasonable Count    30 pts  ████    │  Comprehensive, not fragmented
+ └──────────────────────────────────────┘
+```
+
+## Mode Transitions
+
+| From | To | Trigger |
+|------|----|---------|
+| ANALYZE_TEST | IMPLEMENT_TEST | Plan written to test-tasks.md, user confirms |
+| IMPLEMENT_TEST | REVIEW_TEST | All tests pass, coverage met, quality 100/100 |
+| REVIEW_TEST | Done | Quality gate 100/100, compliance check passes |
+| REVIEW_TEST | IMPLEMENT_TEST | Quality gate < 100/100, issues found |
+| REVIEW_TEST | ANALYZE_TEST | Next component needs testing |
+| IMPLEMENT_TEST | ANALYZE_TEST | Plan found inadequate, needs revision |

@@ -1,0 +1,78 @@
+---
+description: "Test rules for Simple complexity (0-2 dependencies)"
+alwaysApply: false
+---
+
+# Simple Task Rules (0-2 Dependencies)
+
+## Streamlined Analysis
+
+For Simple tasks, skip the design options step and go straight to the test plan:
+
+1. **Read source file** - understand public methods, logic branches
+2. **Identify dependencies** (0-2) - determine what needs mocking
+3. **Define test scenarios** - happy path, edge cases, boundary conditions
+4. **Write test-tasks.md** - use the Simple template below
+
+No design options presentation needed. Proceed directly from plan to implementation.
+
+## Mock Strategy (Simple)
+
+- **0 dependencies**: No mocks needed, test pure logic directly
+- **1-2 dependencies**: Straightforward `@Mock` + `when/thenReturn` setup
+- Use `@InjectMocks` for the class under test
+- Verify only critical interactions (e.g., save was called)
+
+## test-tasks.md Template (Simple)
+
+```markdown
+# Test Tasks
+
+## Project: [Project Name]
+## Complexity: Simple
+## Framework: [Test Framework + Assertion Library + Mocking Framework]
+## Standards: [Reference to project test rules file]
+
+## Current Coverage
+- Overall: [X]%
+- Target Component: [Y]% (or "No tests")
+- Target: 80%+
+
+## Test Plan: [ComponentName]
+
+### Component Under Test
+- Module/Package: [path]
+- Dependencies: [list, 0-2 items]
+
+### Test Scenarios
+
+#### 1. [methodName] - Happy Path
+- **Arrange:** [setup, mock behaviors if any]
+- **Act:** [method call]
+- **Assert:** [expected outcomes]
+
+#### 2. [methodName] - Edge Cases & Errors
+- **Arrange:** [null/invalid inputs, exception stubs]
+- **Act:** [method call]
+- **Assert:** [exception type/message, no side effects]
+
+#### 3. [methodName] - Boundary Conditions (Parameterized)
+- **Data:** [input -> expected output pairs]
+
+### Mock Strategy
+- Mock: [list or "None"]
+- Real: [domain objects]
+- Verify: critical interactions only
+
+### Quality Gates
+- Target: 100/100 (40 pass + 30 coverage + 30 reasonable count)
+
+## Status
+- [ ] Analysis complete
+- [ ] Plan approved
+- [ ] Implementation pending
+```
+
+## Transition
+
+ANALYZE_TEST -> IMPLEMENT_TEST -> REVIEW_TEST (standard flow, no extra steps)

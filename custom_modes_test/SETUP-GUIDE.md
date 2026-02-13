@@ -16,7 +16,22 @@ ls custom_modes_test/
 # implement_test_instructions.md
 # review_test_instructions.md
 # SETUP-GUIDE.md (this file)
+
+ls .cursor/rules/test_isolation/
+# Expected:
+# main_test.mdc        (core principles + complexity router)
+# simple_rules.mdc     (Simple task rules, 0-2 deps)
+# complex_rules.mdc    (Complex task rules, 3+ deps)
+# visual_map.mdc       (workflow visualization)
 ```
+
+### Isolation Rules
+
+The `.cursor/rules/test_isolation/` directory contains rule files that modes fetch on demand. Instead of every mode loading the full `java-test-rule.mdc` (1,000+ lines), each mode loads only what it needs:
+
+- **ANALYZE_TEST**: `main_test.mdc` + `simple_rules.mdc` or `complex_rules.mdc` (~120 lines)
+- **IMPLEMENT_TEST**: `main_test.mdc` + `java-test-rule.mdc` (needs coding examples)
+- **REVIEW_TEST**: `main_test.mdc` only (~60 lines)
 
 ## Step 2: Configure 3 Custom Modes in Cursor
 

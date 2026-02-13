@@ -1,0 +1,109 @@
+---
+description: "Test rules for Complex tasks (3+ dependencies)"
+alwaysApply: false
+---
+
+# Complex Task Rules (3+ Dependencies)
+
+## Design Options Step
+
+For Complex tasks, ANALYZE_TEST must present **2-3 design options** with pros/cons before finalizing the plan. Cover these key decisions:
+
+### Test Data Strategy
+| Option | Pros | Cons |
+|--------|------|------|
+| Helper methods | Simple, readable | Can become verbose for many fields |
+| Builder pattern | Fluent, flexible defaults | More setup code |
+| Factory methods | Centralized, reusable | Can hide important test data |
+
+### Mock Verification Approach
+| Option | Pros | Cons |
+|--------|------|------|
+| Verify critical only | Less brittle, focused | May miss unexpected calls |
+| Verify all interactions | Thorough coverage | Brittle, breaks on refactor |
+| Argument captors | Validates exact data passed | More verbose test code |
+
+### Parameterization Strategy
+| Option | Pros | Cons |
+|--------|------|------|
+| `@MethodSource` | Type-safe, complex objects | More boilerplate |
+| `@CsvSource` | Concise for simple types | Limited to primitives/strings |
+| `@EnumSource` | Clean for enum-driven logic | Only works with enums |
+
+Present options to the user, wait for their choice, then finalize the plan.
+
+## Advanced Mock Guidance
+
+- **Deep stubs**: Use `@Mock(answer = RETURNS_DEEP_STUBS)` for chained calls (e.g., `config.getDb().getUrl()`)
+- **Chained when/thenReturn**: `when(a.b()).thenReturn(b); when(b.c()).thenReturn(result);`
+- **Answer callbacks**: Use `thenAnswer` when return value depends on input arguments
+- **Void method mocking**: Use `doNothing().when(mock).method()` or `doThrow()` for error cases
+- **Spy for partial mocking**: Use `@Spy` when you need real behavior with selective overrides
+- **InOrder verification**: When call sequence matters, use `InOrder inOrder = inOrder(mock1, mock2)`
+
+## test-tasks.md Template (Complex)
+
+```markdown
+# Test Tasks
+
+## Project: [Project Name]
+## Complexity: Complex
+## Framework: [Test Framework + Assertion Library + Mocking Framework]
+## Standards: [Reference to project test rules file]
+
+## Current Coverage
+- Overall: [X]%
+- Target Component: [Y]% (or "No tests")
+- Target: 80%+
+
+## Test Plan: [ComponentName]
+
+### Component Under Test
+- Module/Package: [path]
+- Dependencies: [list, 3+ items]
+
+### Design Decisions
+- **Test data strategy**: [Chosen option] - [rationale]
+- **Mock verification**: [Chosen option] - [rationale]
+- **Parameterization**: [Chosen option] - [rationale]
+
+### Test Scenarios
+
+#### 1. [methodName] - Happy Path
+- **Arrange:** [setup all mocks, construct test data]
+- **Act:** [method call]
+- **Assert:** [expected outcomes, critical interactions]
+
+#### 2. [methodName] - Edge Cases & Errors
+- **Arrange:** [null/invalid inputs, exception stubs]
+- **Act:** [method call]
+- **Assert:** [exception type/message, no side effects]
+
+#### 3. [methodName] - Boundary Conditions (Parameterized)
+- **Data:** [input -> expected output pairs]
+
+#### 4. [methodName] - Dependency Interaction Scenarios
+- **Arrange:** [specific dependency behaviors]
+- **Act:** [method call]
+- **Assert:** [correct delegation, data transformation]
+
+### Mock Strategy
+- Mock: [Dependency1], [Dependency2], [Dependency3+]
+- Real: [domain objects, DTOs]
+- Verify: critical interactions per design decision
+- Deep stubs: [if needed, list which dependencies]
+
+### Quality Gates
+- Target: 100/100 (40 pass + 30 coverage + 30 reasonable count)
+
+## Status
+- [ ] Analysis complete
+- [ ] Design options presented
+- [ ] User choice recorded
+- [ ] Plan approved
+- [ ] Implementation pending
+```
+
+## Transition
+
+ANALYZE_TEST (with design options) -> IMPLEMENT_TEST -> REVIEW_TEST

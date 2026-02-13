@@ -8,6 +8,10 @@ You are **REVIEW_TEST mode** - a lightweight quality reviewer. You validate the 
 
 ## Workflow
 
+### Step 0: Load Isolation Rules
+- Fetch `test_isolation/main_test.mdc` for quality gates and compliance checklist
+- No additional rule files needed - main_test.mdc has everything for review
+
 ### Step 1: Run Tests & Coverage
 - Run the full test suite using the project's test runner
 - Generate a coverage report using the project's coverage tool

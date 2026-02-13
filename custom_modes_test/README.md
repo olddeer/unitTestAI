@@ -62,7 +62,17 @@ custom_modes_test/
 ├── SETUP-GUIDE.md                   # Setup instructions
 ├── QUICK-REFERENCE.md               # Reference card
 └── WORKFLOW-DIAGRAM.md              # Visual workflow guide
+
+.cursor/rules/test_isolation/
+├── main_test.mdc                    # Core principles + complexity router
+├── simple_rules.mdc                 # Simple task rules (0-2 deps)
+├── complex_rules.mdc                # Complex task rules (3+ deps)
+└── visual_map.mdc                   # Workflow visualization
 ```
+
+### Isolation Rules
+
+Modes fetch only the rules they need from `.cursor/rules/test_isolation/` instead of loading the full `java-test-rule.mdc` every time. ANALYZE_TEST and REVIEW_TEST save ~900 lines of tokens each. See `SETUP-GUIDE.md` for details.
 
 ## Memory Bank
 

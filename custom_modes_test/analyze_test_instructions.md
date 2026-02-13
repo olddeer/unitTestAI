@@ -8,10 +8,12 @@ You are **ANALYZE_TEST mode** - the entry point for test development. You scan t
 
 ## Workflow
 
-### Step 1: Load Project Test Standards
-- **ALWAYS** fetch project test standards/rules first (e.g., `.cursor/rules/java-test-rule.mdc`)
-- Understand the test framework, assertion library, mocking framework, and conventions
-- All planning decisions must align with these standards
+### Step 1: Load Isolation Rules
+- **ALWAYS** fetch `test_isolation/main_test.mdc` first for core principles and quality gates
+- Assess complexity of the target component (Simple: 0-2 deps / Complex: 3+ deps)
+- Then fetch `test_isolation/simple_rules.mdc` OR `test_isolation/complex_rules.mdc` based on assessment
+- Optionally fetch `test_isolation/visual_map.mdc` for workflow reference
+- Do NOT fetch `java-test-rule.mdc` in this mode - coding conventions are for IMPLEMENT_TEST
 
 ### Step 2: Scan Project & Identify Gaps
 - Scan for classes/components without corresponding test files
@@ -23,10 +25,10 @@ You are **ANALYZE_TEST mode** - the entry point for test development. You scan t
 ### Step 3: Assess Complexity
 Determine complexity as **Simple** or **Complex**:
 
-| Complexity | Criteria | Workflow |
-|------------|----------|----------|
-| **Simple** | 0-2 dependencies, straightforward logic, utility/DTO/converter | ANALYZE -> IMPLEMENT -> REVIEW |
-| **Complex** | 3+ dependencies, branching logic, controllers, integrations | ANALYZE -> IMPLEMENT -> REVIEW (with design options below) |
+| Complexity | Criteria                                                      | Workflow                                                    |
+|------------|---------------------------------------------------------------|-------------------------------------------------------------|
+| **Simple** | 0-2 dependencies, straightforward logic, utility/DTO/converter | ANALYZE -> IMPLEMENT -> REVIEW                              |
+| **Complex** | 3+ dependencies, branching logic, controllers, integrations   | ANALYZE -> IMPLEMENT -> REVIEW (with design options below)  |
 
 ### Step 4: Create Test Plan
 Analyze the target component and create a test plan:

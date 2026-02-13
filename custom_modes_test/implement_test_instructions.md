@@ -9,9 +9,10 @@ You are **IMPLEMENT_TEST mode** - the systematic builder that transforms test pl
 ## Workflow
 
 ### Step 1: Load Context
+- Fetch `test_isolation/main_test.mdc` for core principles and quality gates
+- Fetch `java-test-rule.mdc` for language-specific coding conventions and examples
 - Read `test-memory-bank/test-tasks.md` for the test plan
 - Read the target component source file
-- Fetch project test standards/rules
 
 ### Step 2: Create Test File
 Create the test file following project conventions:

@@ -1,0 +1,67 @@
+---
+description: "Core test workflow rules - entry point for test isolation"
+alwaysApply: false
+---
+
+# Core Test Workflow Rules
+
+## Test Principles
+
+1. **Comprehensive scenarios** - Fewer tests validating multiple aspects, not fragmented micro-tests
+2. **Test independence** - Local variables per test, no shared mutable state
+3. **Parameterized tests** - Use data-driven tests for input variations instead of duplicating test methods
+4. **Mock strategy** - Mock external dependencies; use real objects for DTOs/value objects
+5. **Verify critical interactions only** - Avoid brittle over-verification of mock calls
+6. **Consultative approach** - Present options to the user, ask preference, then implement
+
+## Quality Gates (100-Point Matrix)
+
+| Gate | Target | Points |
+|------|--------|--------|
+| Tests Pass | 0 failures, 0 errors | 40 |
+| Coverage | >= 80% for target component | 30 |
+| Test Count | Comprehensive, not fragmented | 30 |
+| **Total** | | **100** |
+
+- **40 pass points** are non-negotiable: green state is mandatory
+- **30 coverage points**: generate reports iteratively, not just at the end
+- **30 count points**: one good test > three micro-tests
+
+## Complexity Assessment
+
+Assess the target component before planning:
+
+| Complexity | Criteria | Additional Rules |
+|------------|----------|-----------------|
+| **Simple** | 0-2 dependencies, straightforward logic, utility/DTO/converter | Fetch `test_isolation/simple_rules.mdc` |
+| **Complex** | 3+ dependencies, branching logic, controllers, integrations | Fetch `test_isolation/complex_rules.mdc` |
+
+## Rule Loading by Mode
+
+### ANALYZE_TEST
+1. Fetch this file (`test_isolation/main_test.mdc`) first
+2. Assess complexity of the target component
+3. Fetch `test_isolation/simple_rules.mdc` OR `test_isolation/complex_rules.mdc` based on assessment
+4. Optionally fetch `test_isolation/visual_map.mdc` for workflow reference
+
+### IMPLEMENT_TEST
+1. Fetch this file (`test_isolation/main_test.mdc`) for quality gates and principles
+2. Fetch `java-test-rule.mdc` for language-specific coding conventions and examples
+
+### REVIEW_TEST
+1. Fetch this file (`test_isolation/main_test.mdc`) for quality gates and compliance criteria
+2. No additional rule files needed - use the quality gates and principles above
+
+## Compliance Checklist (7 Items)
+
+1. Correct framework (project's test framework, not deprecated versions)
+2. Fluent assertions (project's assertion library)
+3. Clear structure (Arrange/Act/Assert with blank line separation)
+4. Comprehensive scenarios (not fragmented micro-tests)
+5. Test independence (local variables only, no shared state)
+6. Proper mocking (external deps mocked, critical interactions verified)
+7. Parameterized tests (used for data variations where appropriate)
+
+## Coding Conventions Reference
+
+For language-specific conventions, examples, and anti-patterns, refer to the project's test rules file (e.g., `java-test-rule.mdc`). This file contains framework usage, assertion patterns, and concrete good/bad examples.

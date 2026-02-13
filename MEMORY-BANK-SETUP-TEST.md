@@ -40,12 +40,25 @@ Single file: `test-memory-bank/test-tasks.md` - tracks plan, status, and complet
 3. Switch to ANALYZE_TEST mode and specify target class
 4. Follow the workflow
 
+### Isolation Rules
+
+Modes load only the rules they need from `.cursor/rules/test_isolation/`:
+
+| Mode | Rules Fetched | Approx. Lines |
+|------|--------------|---------------|
+| ANALYZE_TEST | `main_test.mdc` + `simple_rules.mdc` or `complex_rules.mdc` | ~120 |
+| IMPLEMENT_TEST | `main_test.mdc` + `java-test-rule.mdc` | ~1,070 |
+| REVIEW_TEST | `main_test.mdc` only | ~60 |
+
+This reduces token usage by 60-80% for ANALYZE and REVIEW modes compared to loading the full `java-test-rule.mdc` every time.
+
 ### Documentation
 
 - **Setup Guide**: `custom_modes_test/SETUP-GUIDE.md`
 - **Quick Reference**: `custom_modes_test/QUICK-REFERENCE.md`
 - **Workflow Diagram**: `custom_modes_test/WORKFLOW-DIAGRAM.md`
 - **Test Rules**: `.cursor/rules/java-test-rule.mdc`
+- **Isolation Rules**: `.cursor/rules/test_isolation/` (main_test, simple_rules, complex_rules, visual_map)
 
 ---
 
