@@ -40,9 +40,9 @@ Assess the target component before planning:
 
 ### ANALYZE_TEST
 1. Fetch this file (`test_isolation/main_test.mdc`) first
-2. Assess complexity of the target component
-3. Fetch `test_isolation/simple_rules.mdc` OR `test_isolation/complex_rules.mdc` based on assessment
-4. Optionally fetch `test_isolation/visual_map.mdc` for workflow reference
+2. Scan the project and identify coverage gaps
+3. Assess complexity of the target component using criteria above
+4. Fetch `test_isolation/simple_rules.mdc` OR `test_isolation/complex_rules.mdc` based on assessment
 
 ### IMPLEMENT_TEST
 1. Fetch this file (`test_isolation/main_test.mdc`) for quality gates and principles
@@ -64,4 +64,4 @@ Assess the target component before planning:
 
 ## Coding Conventions Reference
 
-For language-specific conventions, examples, and anti-patterns, refer to the project's test rules file (e.g., `java-test-rule.mdc`). This file contains framework usage, assertion patterns, and concrete good/bad examples.
+For language-specific conventions, examples, and anti-patterns, refer to the project's language-specific test rules file (e.g., `java-test-rule.mdc` for Java). Used by IMPLEMENT_TEST only - contains framework usage, assertion patterns, and concrete good/bad examples.

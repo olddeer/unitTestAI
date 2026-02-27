@@ -8,11 +8,8 @@ You are **ANALYZE_TEST mode** - the entry point for test development. You scan t
 
 ## Workflow
 
-### Step 1: Load Isolation Rules
-- **ALWAYS** fetch `test_isolation/main_test.mdc` first for core principles and quality gates
-- Assess complexity of the target component (Simple: 0-2 deps / Complex: 3+ deps)
-- Then fetch `test_isolation/simple_rules.mdc` OR `test_isolation/complex_rules.mdc` based on assessment
-- Optionally fetch `test_isolation/visual_map.mdc` for workflow reference
+### Step 1: Load Core Rules
+- **ALWAYS** fetch `test_isolation/main_test.mdc` first for core principles, quality gates, and complexity criteria
 - Do NOT fetch `java-test-rule.mdc` in this mode - coding conventions are for IMPLEMENT_TEST
 
 ### Step 2: Scan Project & Identify Gaps
@@ -22,13 +19,17 @@ You are **ANALYZE_TEST mode** - the entry point for test development. You scan t
 - Skip abstract classes/interfaces unless they contain concrete logic
 - Skip simple getters/setters/accessors unless they have logic
 
-### Step 3: Assess Complexity
-Determine complexity as **Simple** or **Complex**:
+### Step 3: Assess Complexity & Load Sub-Rules
+Determine complexity as **Simple** or **Complex** using criteria from `main_test.mdc`:
 
-| Complexity | Criteria                                                      | Workflow                                                    |
-|------------|---------------------------------------------------------------|-------------------------------------------------------------|
-| **Simple** | 0-2 dependencies, straightforward logic, utility/DTO/converter | ANALYZE -> IMPLEMENT -> REVIEW                              |
-| **Complex** | 3+ dependencies, branching logic, controllers, integrations   | ANALYZE -> IMPLEMENT -> REVIEW (with design options below)  |
+| Complexity | Criteria | Workflow |
+|------------|----------|----------|
+| **Simple** | 0-2 dependencies, straightforward logic, utility/DTO/converter | ANALYZE -> IMPLEMENT -> REVIEW |
+| **Complex** | 3+ dependencies, branching logic, controllers, integrations | ANALYZE -> IMPLEMENT -> REVIEW (with design options) |
+
+Then fetch the matching sub-rules file:
+- **Simple** → fetch `test_isolation/simple_rules.mdc`
+- **Complex** → fetch `test_isolation/complex_rules.mdc`
 
 ### Step 4: Create Test Plan
 Analyze the target component and create a test plan:
@@ -73,6 +74,11 @@ Create/update `test-memory-bank/test-tasks.md`:
 - Module/Package: [path]
 - Dependencies: [list]
 
+### Design Decisions (Complex only)
+- **Test data strategy**: [Chosen option] - [rationale]
+- **Mock verification**: [Chosen option] - [rationale]
+- **Parameterization**: [Chosen option] - [rationale]
+
 ### Test Scenarios
 
 #### 1. [methodName] - Happy Path
@@ -88,19 +94,24 @@ Create/update `test-memory-bank/test-tasks.md`:
 #### 3. [methodName] - Boundary Conditions (Parameterized)
 - **Data:** [list of input -> expected output pairs]
 
+#### 4. [methodName] - Dependency Interaction Scenarios (Complex only)
+- **Arrange:** [specific dependency behaviors]
+- **Act:** [method call]
+- **Assert:** [correct delegation, data transformation]
+
 ### Mock Strategy
 - Mock: [Dependency1], [Dependency2] (external dependencies)
 - Real: [ValueObject1], [DTO1] (domain objects)
 - Verify: critical interactions only
-
-### Design Decisions (Complex only)
-- [Decision]: [Chosen option] - [brief rationale]
+- Deep stubs: [if needed] (Complex only)
 
 ### Quality Gates
 - Target: 100/100 (40 pass + 30 coverage + 30 reasonable count)
 
 ## Status
 - [ ] Analysis complete
+- [ ] Design options presented (Complex only)
+- [ ] User choice recorded (Complex only)
 - [ ] Plan approved
 - [ ] Implementation pending
 ```
