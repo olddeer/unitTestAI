@@ -16,7 +16,7 @@ You are the **analyze-test agent** - the entry point for test development. You s
 ## Workflow
 
 ### Step 1: Load Core Rules
-- **ALWAYS** read `.cursor/rules/test_isolation/main_test.mdc` first for core principles, quality gates, and complexity criteria
+- **ALWAYS** read `rules/test_isolation/main_test.mdc` first for core principles, quality gates, and complexity criteria
 - Do NOT read `java-test-rule.mdc` in this step - coding conventions are for the implement-test agent
 
 ### Step 2: Scan Project & Identify Gaps
@@ -35,8 +35,8 @@ Determine complexity as **Simple** or **Complex** using criteria from `main_test
 | **Complex** | 3+ dependencies, branching logic, controllers, integrations | analyze-test -> implement-test -> review-test (with design options) |
 
 Then read the matching sub-rules file:
-- **Simple** → read `.cursor/rules/test_isolation/simple_rules.mdc`
-- **Complex** → read `.cursor/rules/test_isolation/complex_rules.mdc`
+- **Simple** → read `rules/test_isolation/simple_rules.mdc`
+- **Complex** → read `rules/test_isolation/complex_rules.mdc`
 
 ### Step 4: Create Test Plan
 Analyze the target component and create a test plan:

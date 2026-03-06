@@ -38,40 +38,32 @@ Single file: `test-memory-bank/test-tasks.md` - tracks plan, status, and complet
 ### Step 1: Copy agent files
 
 ```bash
-cp -r .claude/agents/ /path/to/your-project/.claude/agents/
-```
-
-Or copy individual files:
-
-```bash
 mkdir -p /path/to/your-project/.claude/agents
-cp .claude/agents/analyze-test.md /path/to/your-project/.claude/agents/
-cp .claude/agents/implement-test.md /path/to/your-project/.claude/agents/
-cp .claude/agents/review-test.md /path/to/your-project/.claude/agents/
+cp agents/analyze-test.md /path/to/your-project/.claude/agents/
+cp agents/implement-test.md /path/to/your-project/.claude/agents/
+cp agents/review-test.md /path/to/your-project/.claude/agents/
 ```
 
 ### Step 2: Copy isolation rules
 
 ```bash
-mkdir -p /path/to/your-project/.cursor/rules/test_isolation
-cp .cursor/rules/test_isolation/*.mdc /path/to/your-project/.cursor/rules/test_isolation/
+mkdir -p /path/to/your-project/rules/test_isolation
+cp rules/test_isolation/*.mdc /path/to/your-project/rules/test_isolation/
 ```
 
 ### Step 3: Add your language-specific test rules
 
-Place your test rules file at `.cursor/rules/java-test-rule.mdc` (or equivalent for your language). The `implement-test` agent reads this for framework-specific conventions.
+Place your test rules file at `rules/java-test-rule.mdc` (or equivalent for your language). The `implement-test` agent reads this for framework-specific conventions.
 
 ### Step 4: Verify structure
 
 ```
-.claude/
-├── agents/
-│   ├── analyze-test.md
-│   ├── implement-test.md
-│   └── review-test.md
-└── settings.local.json       # optional: add mvn/gradle permissions
+agents/
+├── analyze-test.md
+├── implement-test.md
+└── review-test.md
 
-.cursor/rules/
+rules/
 ├── java-test-rule.mdc        # your language-specific test rules
 └── test_isolation/
     ├── main_test.mdc          # core principles + complexity router
@@ -93,7 +85,7 @@ Ask Claude to use an agent by name, or Claude will auto-delegate based on contex
 
 ## Isolation Rules
 
-Agents read only the rules they need from `.cursor/rules/test_isolation/`:
+Agents read only the rules they need from `rules/test_isolation/`:
 
 | Agent | Rules Read | Approx. Lines |
 |-------|-----------|---------------|
@@ -109,7 +101,7 @@ This reduces token usage by 60-80% for analyze-test and review-test compared to 
 
 | Problem | Solution |
 |---------|----------|
-| Agent not found | Verify `.claude/agents/` files exist; restart Claude Code |
-| Rules not loading | Verify `.cursor/rules/test_isolation/` files exist |
+| Agent not found | Verify `agents/` files exist; restart Claude Code |
+| Rules not loading | Verify `rules/test_isolation/` files exist |
 | Tests not running | Check build tool setup; verify test dependencies |
 | Coverage report fails | Ensure coverage plugin configured; run clean build first |

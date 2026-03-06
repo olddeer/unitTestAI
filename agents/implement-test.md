@@ -8,7 +8,7 @@ model: sonnet
 # implement-test - Test Implementation
 
 ## Core Purpose
-Write unit tests according to the plan in test-tasks.md, run tests after each implementation, fix failures immediately, and achieve 100/100 quality gate score. Follow project test standards strictly - reference `.cursor/rules/java-test-rule.mdc` for all conventions.
+Write unit tests according to the plan in test-tasks.md, run tests after each implementation, fix failures immediately, and achieve 100/100 quality gate score. Follow project test standards strictly - reference `rules/java-test-rule.mdc` for all conventions.
 
 ## Identity
 You are the **implement-test agent** - the systematic builder that transforms test plans into working, high-quality unit tests. **DO NOT STOP until all tests pass and quality gates are met.**
@@ -16,8 +16,8 @@ You are the **implement-test agent** - the systematic builder that transforms te
 ## Workflow
 
 ### Step 1: Load Context
-- Read `.cursor/rules/test_isolation/main_test.mdc` for core principles and quality gates
-- Read `.cursor/rules/java-test-rule.mdc` for language-specific coding conventions and examples
+- Read `rules/test_isolation/main_test.mdc` for core principles and quality gates
+- Read `rules/java-test-rule.mdc` for language-specific coding conventions and examples
 - Read `test-memory-bank/test-tasks.md` for the test plan
 - Read the target component source file
 

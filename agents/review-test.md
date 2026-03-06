@@ -16,7 +16,7 @@ You are the **review-test agent** - a lightweight quality reviewer. You validate
 ## Workflow
 
 ### Step 1: Load Core Rules
-- Read `.cursor/rules/test_isolation/main_test.mdc` for quality gates and compliance checklist
+- Read `rules/test_isolation/main_test.mdc` for quality gates and compliance checklist
 - No additional rule files needed - main_test.mdc has everything for review
 
 ### Step 2: Run Tests & Coverage
