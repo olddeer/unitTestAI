@@ -70,7 +70,7 @@
 4. Create test plan with scenarios
 5. For Complex: present design options, get user choice
 
-**Output**: `test-memory-bank/test-tasks.md` with complete plan
+**Output**: `test-memory-bank/test-tasks.md` with complete plan based on 'template/test-tasks-template.md'
 
 ## IMPLEMENT_TEST - Build
 

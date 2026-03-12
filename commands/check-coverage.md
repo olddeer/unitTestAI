@@ -1,4 +1,4 @@
-.co# /check-coverage - Class Coverage Check
+# /check-coverage - Class Coverage Check
 
 ## Usage
 

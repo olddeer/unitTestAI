@@ -59,19 +59,30 @@ This repository contains **4 Claude Code subagents** for unit test development. 
 "run-tests — test everything with 0% coverage"
 ```
 
+**Single class with a slash command:**
+```
+/quick-test OrderService
+/quick-test OrderService --plan-only   # plan only, no implementation
+/check-coverage UserService            # check current coverage, no tests written
+```
+
 **Manual:** invoke specialist agents directly:
 1. Read `MEMORY-BANK-SETUP-TEST.md` to add agents to your project
-2. Ask Claude to use `analyze-test` agent on a class
+2. Ask Claude to use `analyze-test` on a class
 3. Follow the workflow through `implement-test` and `review-test`
 
 ## File Structure
 
 ```
 agents/
-├── run-tests.md              # run-tests orchestrator agent
-├── analyze-test.md           # analyze-test agent
-├── implement-test.md         # implement-test agent
-└── review-test.md            # review-test agent
+├── run-tests.md              # Orchestrator — drives the full cycle autonomously
+├── analyze-test.md           # Specialist — scan, plan, design options
+├── implement-test.md         # Specialist — write tests, fix, 100/100
+└── review-test.md            # Specialist — verify quality, close task
+
+commands/
+├── quick-test.md             # /quick-test — single class full cycle
+└── check-coverage.md         # /check-coverage — report coverage, no tests written
 
 rules/
 ├── java-test-rule.mdc        # Language-specific test conventions
@@ -92,11 +103,11 @@ Agents read only the rules they need from `rules/test_isolation/` instead of loa
 
 ## Memory Bank
 
-The commands use a single tracking file:
+All agents share a single tracking file:
 
 ```
 test-memory-bank/
-└── test-tasks.md    # Plan, status, and completion entries
+└── test-tasks.md    # Queue, plan, status, and completion entries
 ```
 
 No other memory bank files are created.

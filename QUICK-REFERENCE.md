@@ -3,16 +3,26 @@
 ## Workflow
 
 ```
-analyze-test  ->  implement-test  ->  review-test  ->  Done (or next class)
+run-tests (orchestrator)  ->  analyze-test  ->  implement-test  ->  review-test  ->  Done (or next class)
 ```
 
 ## Agents
 
-| Agent | What It Does | Next Step |
-|-------|-------------|-----------|
-| **analyze-test** | Scan project, plan tests, design options (Complex) | implement-test |
-| **implement-test** | Write tests, run & fix, hit 100/100 | review-test |
-| **review-test** | Verify quality, close task | analyze-test (next class) |
+| Agent | Role | What It Does |
+|-------|------|-------------|
+| **run-tests** | Orchestrator | Build priority queue, drive full cycle, escalate blockers |
+| **analyze-test** | Specialist | Scan project, plan tests, design options (Complex) |
+| **implement-test** | Specialist | Write tests, run & fix, hit 100/100 |
+| **review-test** | Specialist | Verify quality, close task |
+
+## Slash Commands
+
+| Command | What It Does |
+|---------|-------------|
+| `/quick-test <Class>` | Full cycle for one class (analyze → implement → review) |
+| `/quick-test <Class> --plan-only` | Run analyze-test only; stop after plan is written |
+| `/quick-test <Class> --coverage-only` | Report current coverage without writing tests |
+| `/check-coverage <Class>` | Report line + branch coverage; list uncovered areas |
 
 ## Complexity
 
@@ -63,13 +73,13 @@ mvn -q -DskipITs test jacoco:report | cat
 
 ## Tips
 
-1. **Always start with analyze-test** - don't skip the analysis
-2. **Run tests after every change** in implement-test
-3. **Fix failures immediately** - don't move on with failing tests
-4. **Comprehensive > fragmented** - fewer tests validating more aspects
-5. **Local variables only** - no shared state between tests
-6. **Parameterize data variations** - reduces test count, increases coverage
-7. **Refer to project test rules** - all conventions live there, not in agent files
+1. **Use `run-tests` for batch work** - it handles the full queue autonomously
+2. **Use `/quick-test` for a single class** - one command, full cycle
+3. **Use `/check-coverage` before writing tests** - know what's actually missing
+4. **Fix failures immediately** in implement-test - don't move on with failing tests
+5. **Comprehensive > fragmented** - fewer tests validating more aspects
+6. **Local variables only** - no shared state between tests
+7. **Parameterize data variations** - reduces test count, increases coverage
 
 ## Quick Links
 
