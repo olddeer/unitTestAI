@@ -4,19 +4,24 @@
 
 ## What's This?
 
-This repository contains **3 Claude Code subagents** for unit test development. They provide a structured workflow from analysis through implementation to review, ensuring high-quality tests that follow your project's standards.
+This repository contains **4 Claude Code subagents** for unit test development. They provide a structured workflow from analysis through implementation to review, ensuring high-quality tests that follow your project's standards. Use `run-tests` as the single entry point for hands-off batch generation, or invoke the specialist agents individually for manual control.
 
-### The Three Agents
+### The Agents
 
-| Agent | Purpose |
-|-------|---------|
-| `analyze-test` | Scan project, assess complexity, create test plan, present design options for complex tasks |
-| `implement-test` | Write tests, run & fix, achieve 100/100 quality gates |
-| `review-test` | Quick quality check, brief assessment, update completion status |
+| Agent | Role | Purpose |
+|-------|------|---------|
+| `run-tests` | **Orchestrator** | Drive the full analyze → implement → review cycle autonomously; accepts a single class, package, or "all"; loops until 100/100 or escalates |
+| `analyze-test` | Specialist | Scan project, assess complexity, create test plan, present design options for complex tasks |
+| `implement-test` | Specialist | Write tests, run & fix, achieve 100/100 quality gates |
+| `review-test` | Specialist | Quick quality check, brief assessment, update completion status |
 
 ## Workflow
 
 ```
+         run-tests (orchestrator)
+         Parse target, build priority queue
+              |
+              v
          analyze-test
          Scan project, plan tests
          Simple or Complex?
@@ -31,10 +36,11 @@ This repository contains **3 Claude Code subagents** for unit test development. 
          Verify quality, close task
               |
          Done? --> Next class --> analyze-test
+         Escalated? --> Report to user
 ```
 
 **Simple** (0-2 deps): analyze-test -> implement-test -> review-test
-**Complex** (3+ deps): Same flow, but analyze-test includes design options step
+**Complex** (3+ deps): Same flow, but analyze-test pauses for user design choice before implement-test
 
 ## Quality Gates (100 points)
 
@@ -46,6 +52,14 @@ This repository contains **3 Claude Code subagents** for unit test development. 
 
 ## Quick Start
 
+**Automated (recommended):** use `run-tests` to handle everything hands-off:
+```
+"use run-tests to test OrderService"
+"run-tests on the com.example.service package"
+"run-tests — test everything with 0% coverage"
+```
+
+**Manual:** invoke specialist agents directly:
 1. Read `MEMORY-BANK-SETUP-TEST.md` to add agents to your project
 2. Ask Claude to use `analyze-test` agent on a class
 3. Follow the workflow through `implement-test` and `review-test`
@@ -54,6 +68,7 @@ This repository contains **3 Claude Code subagents** for unit test development. 
 
 ```
 agents/
+├── run-tests.md              # run-tests orchestrator agent
 ├── analyze-test.md           # analyze-test agent
 ├── implement-test.md         # implement-test agent
 └── review-test.md            # review-test agent
