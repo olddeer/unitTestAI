@@ -63,6 +63,9 @@ agents/
 ├── implement-test.md
 └── review-test.md
 
+commands/
+└── check-coverage.md         # /check-coverage slash command
+
 rules/
 ├── java-test-rule.mdc        # your language-specific test rules
 └── test_isolation/
@@ -71,6 +74,15 @@ rules/
     ├── complex_rules.mdc      # complex task rules (3+ deps)
     └── visual_map.mdc         # workflow visualization
 ```
+
+### Step 4b: Copy slash commands (optional)
+
+```bash
+mkdir -p /path/to/your-project/.claude/commands
+cp commands/check-coverage.md /path/to/your-project/.claude/commands/
+```
+
+Then in Claude Code type `/check-coverage UserService` to report line and branch coverage for a specific class.
 
 ### Step 5: Use the agents
 
