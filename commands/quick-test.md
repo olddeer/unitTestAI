@@ -32,7 +32,7 @@ If the class has an in-progress plan but no implementation, skip analyze-test an
 
 ### Step 2: Run analyze-test
 
-Invoke the `analyze-test` agent on `<ClassName>`.
+Use the **Agent tool** with `subagent_type: "analyze-test"` on `<ClassName>`. Do NOT use the default agent or run-tests for this step.
 
 For **Simple** tasks: confirm the plan automatically and proceed.
 
@@ -42,13 +42,13 @@ If `--plan-only`: stop here. Print the plan path and tell the user to run `/quic
 
 ### Step 3: Run implement-test
 
-Invoke the `implement-test` agent using the plan from `test-memory-bank/test-tasks.md`.
+Use the **Agent tool** with `subagent_type: "implement-test"` using the plan from `test-memory-bank/test-tasks.md`. Do NOT use the default agent or run-tests for this step.
 
 If tests fail to converge after 2 internal fix attempts: report the blocker and stop. Do not retry endlessly.
 
 ### Step 4: Run review-test
 
-Invoke the `review-test` agent to validate and close out the task.
+Use the **Agent tool** with `subagent_type: "review-test"` to validate and close out the task. Do NOT use the default agent or run-tests for this step.
 
 ### Step 5: Report result
 

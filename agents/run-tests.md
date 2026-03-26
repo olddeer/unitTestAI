@@ -1,7 +1,7 @@
 ---
 name: run-tests
 description: Orchestrator agent for automated unit test development. Use this agent to run the full analyze → implement → review cycle with minimal manual intervention. Accepts a target (single class, package, or "all") and drives the complete workflow autonomously — scanning for gaps, delegating to specialist agents in sequence, checking quality gates, and looping until all targets reach 100/100 or require user input. This is the entry point for batch test generation.
-tools: Read, Grep, Glob, Bash, Write, Edit
+tools: Read, Grep, Glob, Bash, Write, Edit, Agent
 model: sonnet
 ---
 
@@ -70,14 +70,14 @@ For each class in the queue (pick next `pending` item):
 
 **3b. Delegate to analyze-test:**
 Tell the user: "Starting analyze-test for [ClassName]..."
-Instruct analyze-test to analyze `[ClassName]` and write the plan to `test-memory-bank/test-tasks.md`.
+Use the **Agent tool** with `subagent_type: "analyze-test"` to analyze `[ClassName]` and write the plan to `test-memory-bank/test-tasks.md`.
 
 For Simple tasks: proceed automatically once the plan is written.
 For Complex tasks: PAUSE and present the design options to the user. Wait for their choice before proceeding. Resume after user input.
 
 **3c. Delegate to implement-test:**
 Tell the user: "Starting implement-test for [ClassName]..."
-Instruct implement-test to implement the plan from `test-memory-bank/test-tasks.md` and achieve 100/100.
+Use the **Agent tool** with `subagent_type: "implement-test"` to implement the plan from `test-memory-bank/test-tasks.md` and achieve 100/100.
 
 Track attempt count for this class. If implement-test reports it cannot reach 100/100 after its own internal fix cycles:
 - Attempt 1 failed → try once more with a note to focus on the specific failing gate
@@ -85,7 +85,7 @@ Track attempt count for this class. If implement-test reports it cannot reach 10
 
 **3d. Delegate to review-test:**
 Tell the user: "Starting review-test for [ClassName]..."
-Instruct review-test to validate the implemented tests and record the completion entry.
+Use the **Agent tool** with `subagent_type: "review-test"` to validate the implemented tests and record the completion entry.
 
 **3e. Check the outcome:**
 - Score = 100/100 → mark class as `done ✓` in the queue table, proceed to next class
