@@ -84,6 +84,32 @@ cp commands/check-coverage.md /path/to/your-project/.claude/commands/
 
 Then in Claude Code type `/check-coverage UserService` to report line and branch coverage for a specific class.
 
+### Step 4c: Copy permissions config (required)
+
+The agents run Maven/Gradle commands autonomously. Without pre-approved permissions, Claude will prompt for every `mvn` or `gradlew` call, interrupting the automated flow.
+
+```bash
+cp .claude/settings.json /path/to/your-project/.claude/settings.json
+```
+
+Or merge manually into your existing `.claude/settings.json`:
+
+```json
+{
+  "permissions": {
+    "allow": [
+      "Bash(mvn:*)",
+      "Bash(./gradlew:*)",
+      "Bash(gradle:*)",
+      "Write(src/test/**)",
+      "Edit(src/test/**)",
+      "Write(test-memory-bank/**)",
+      "Edit(test-memory-bank/**)"
+    ]
+  }
+}
+```
+
 ### Step 5: Use the agents
 
 Ask Claude to use an agent by name, or Claude will auto-delegate based on context:

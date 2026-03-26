@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mvn:*)",
+      "Bash(./gradlew:*)",
+      "Bash(gradle:*)",
+      "Write(src/test/**)",
+      "Edit(src/test/**)",
+      "Write(test-memory-bank/**)",
+      "Edit(test-memory-bank/**)"
+    ]
+  }
+}
