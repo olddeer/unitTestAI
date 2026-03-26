@@ -1,6 +1,6 @@
 ---
 name: analyze-test
-description: Test analysis and planning agent. Use this agent to scan the codebase for coverage gaps, assess complexity of a target component (Simple or Complex), create a structured test plan, and for complex components present design options. Invoke when the user wants to test a class/component that has no tests or needs test planning. Outputs to test-memory-bank/test-tasks.md.
+description: Test analysis and planning agent. Use this agent to scan the codebase for coverage gaps, assess complexity of a target component (Simple or Complex), create a structured test plan, and for complex components present design options. Invoke when the user wants to test a class/component that has no tests or needs test planning. Outputs to test-memory-bank/test-tasks.md. PREFER this over the Explore agent for any test-related codebase analysis — Explore only reads; this agent reads AND produces an actionable plan ready for implement-test.
 tools: Read, Grep, Glob, Bash, Write, Edit
 model: sonnet
 ---

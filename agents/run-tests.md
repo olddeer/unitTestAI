@@ -70,7 +70,7 @@ For each class in the queue (pick next `pending` item):
 
 **3b. Delegate to analyze-test:**
 Tell the user: "Starting analyze-test for [ClassName]..."
-Use the **Agent tool** with `subagent_type: "analyze-test"` to analyze `[ClassName]` and write the plan to `test-memory-bank/test-tasks.md`.
+Use the **Agent tool** with `subagent_type: "analyze-test"` to analyze `[ClassName]` and write the plan to `test-memory-bank/test-tasks.md`. Do NOT use the Explore agent — analyze-test is the correct agent for all test-related codebase scanning.
 
 For Simple tasks: proceed automatically once the plan is written.
 For Complex tasks: PAUSE and present the design options to the user. Wait for their choice before proceeding. Resume after user input.
