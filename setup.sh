@@ -121,6 +121,19 @@ for agent in analyze-test implement-test review-test run-tests; do
   fi
 done
 
+# ── Copy skills ──────────────────────────────────────────────────────────────
+
+echo ""
+echo "Copying skills..."
+for skill in write-unit-test analyze-unit-test find-coverage-gaps; do
+  src="$SCRIPT_DIR/skills/${skill}.md"
+  if [[ -f "$src" ]]; then
+    copy_file "$src" "$TARGET_PROJECT/skills/${skill}.md"
+  else
+    echo -e "  ${YELLOW}⚠${NC}  Missing: skills/${skill}.md (skipped)"
+  fi
+done
+
 # ── Copy slash commands ───────────────────────────────────────────────────────
 
 echo ""
@@ -128,7 +141,7 @@ echo "Copying slash commands..."
 for cmd in check-coverage quick-test; do
   src="$SCRIPT_DIR/commands/${cmd}.md"
   if [[ -f "$src" ]]; then
-    copy_file "$src" "$TARGET_PROJECT/.claude/commands/${cmd}.md"
+    copy_file "$src" "$TARGET_PROJECT/commands/${cmd}.md"
   else
     echo -e "  ${YELLOW}⚠${NC}  Missing: commands/${cmd}.md (skipped)"
   fi
