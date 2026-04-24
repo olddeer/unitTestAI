@@ -25,14 +25,18 @@ You are the **analyze-test agent** - the entry point for test development. You s
 - Prioritize by business logic complexity and criticality
 - Skip abstract classes/interfaces unless they contain concrete logic
 - Skip simple getters/setters/accessors unless they have logic
+- **Skip entity classes**: annotated with `@Entity` or `@Table`, or class name ends with `Entity`
+- **Skip DTO classes**: class name ends with `Dto`, `DTO`, `Request`, `Response`
+- **Skip utility classes**: class name ends with `Util`, `Utils`, `Helper`, `Helpers`, or class contains only static methods with no dependencies
+- **Focus on**: Service, Repository, Controller, Processor, Handler, Manager, Validator, Converter classes
 
 ### Step 3: Assess Complexity & Load Sub-Rules
 Determine complexity as **Simple** or **Complex** using criteria from `main_test.md`:
 
 | Complexity | Criteria | Workflow |
 |------------|----------|----------|
-| **Simple** | 0-2 dependencies, straightforward logic, utility/DTO/converter | analyze-test -> implement-test -> review-test |
-| **Complex** | 3+ dependencies, branching logic, controllers, integrations | analyze-test -> implement-test -> review-test (with design options) |
+| **Simple** | 0-2 dependencies, straightforward logic, converters | analyze-test -> implement-test -> review-test |
+| **Complex** | 3+ dependencies, branching logic, services, repositories, controllers, integrations | analyze-test -> implement-test -> review-test (with design options) |
 
 Then read the matching sub-rules file:
 - **Simple** → read `rules/test_isolation/simple_rules.mdc`

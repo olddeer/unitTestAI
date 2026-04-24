@@ -36,6 +36,11 @@ Determine the work scope:
 - **Package**: `"test com.example.service"` → glob all non-abstract, non-interface `.java` files in that package; exclude files already marked complete in test-tasks.md
 - **"all" / no target**: Run coverage report to find all classes below 80% line coverage; build queue from that list
 
+**Always skip these class types — do not add them to the queue under any circumstance:**
+- **Entity classes**: annotated with `@Entity` or `@Table`, or class name ends with `Entity`
+- **DTO classes**: class name ends with `Dto`, `DTO`, `Request`, `Response`
+- **Utility classes**: class name ends with `Util`, `Utils`, `Helper`, `Helpers`, or class contains only static methods with no dependencies
+
 ### Step 2: Build a prioritized work queue
 
 For each candidate class, score it:
@@ -47,7 +52,7 @@ Priority score = (100 - current_coverage%) × dependency_count × 2 + has_busine
 Where:
 - `current_coverage%` = 0 if no test file exists, else actual JaCoCo line coverage
 - `dependency_count` = number of `@Mock` or constructor-injected dependencies (proxy for complexity/value)
-- `has_business_logic_bonus` = 20 if class name contains Service, Controller, Processor, Handler, Manager, Validator, Converter; 0 otherwise
+- `has_business_logic_bonus` = 20 if class name contains Service, Repository, Controller, Processor, Handler, Manager, Validator, Converter; 0 otherwise
 
 Sort descending. Highest-value untested business logic runs first.
 
