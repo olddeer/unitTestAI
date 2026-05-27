@@ -239,6 +239,8 @@ unitTestAI/
 ├── commands/
 │   ├── quick-test.md                  ← /quick-test slash command
 │   └── check-coverage.md              ← /check-coverage slash command
+├── hooks/
+│   └── coverage-reminder.sh           ← PostToolUse: reminds about coverage after edits
 ├── rules/
 │   ├── java-test-rule.mdc             ← Java patterns & examples
 │   └── test_isolation/
@@ -251,6 +253,23 @@ unitTestAI/
 └── test-memory-bank/
     └── test-tasks.md                  ← all runtime state (auto-created)
 ```
+
+---
+
+## Hooks
+
+`setup.sh` installs a `PostToolUse` hook at `.claude/hooks/coverage-reminder.sh` in the target project. After any `Write` or `Edit` to a file under `src/main/java/**/*.java`, it injects an `additionalContext` reminder into the assistant:
+
+```
+[unitTestAI] OrderService was modified under src/main/java — coverage may have drifted.
+Suggest: /check-coverage OrderService or /quick-test OrderService.
+```
+
+Skip rules mirror the framework: entities, DTOs, requests/responses, and utilities never trigger the reminder. Classes already at `100/100` in `test-memory-bank/test-tasks.md` are also skipped so the signal stays clean.
+
+**When the hook fires and you see the reminder, act on it** — run `/check-coverage <Class>` first; if coverage dropped below 80%, follow up with `/quick-test <Class>`.
+
+To disable, remove the `PostToolUse` entry from `.claude/settings.json` (the script in `.claude/hooks/` can stay; without the settings entry it won't fire).
 
 ---
 
@@ -306,11 +325,13 @@ cp commands/quick-test.md      $TARGET/commands/
 cp commands/check-coverage.md  $TARGET/commands/
 ```
 
-### Step 5: Configure permissions (required)
+### Step 5: Configure permissions and hooks (required)
 
 Without pre-approved permissions, Claude will prompt for every `mvn` or `gradlew` invocation, breaking the automated flow.
 
-Add to `$TARGET/.claude/settings.json` (merge if the file already exists):
+If you used `setup.sh`, this is done for you — both the permissions block and the `PostToolUse` coverage-reminder hook are merged into `$TARGET/.claude/settings.json` automatically.
+
+For manual installs, merge this into `$TARGET/.claude/settings.json`:
 
 ```json
 {
@@ -322,10 +343,28 @@ Add to `$TARGET/.claude/settings.json` (merge if the file already exists):
       "Write(src/test/**)",
       "Edit(src/test/**)",
       "Write(test-memory-bank/**)",
-      "Edit(test-memory-bank/**)"
+      "Edit(test-memory-bank/**)",
+      "Bash(.claude/hooks/coverage-reminder.sh:*)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          { "type": "command", "command": ".claude/hooks/coverage-reminder.sh" }
+        ]
+      }
     ]
   }
 }
+```
+
+Also copy the hook script itself:
+```bash
+mkdir -p $TARGET/.claude/hooks
+cp hooks/coverage-reminder.sh $TARGET/.claude/hooks/
+chmod +x $TARGET/.claude/hooks/coverage-reminder.sh
 ```
 
 ### Step 6: Verify JaCoCo is configured

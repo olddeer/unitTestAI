@@ -103,7 +103,8 @@ AGENTS_DIR="$TARGET_PROJECT/.claude/agents"
 if [[ -d "$AGENTS_DIR" ]] && ! $DRY_RUN; then
   echo -e "${YELLOW}Warning:${NC} .claude/agents already exists in target project."
   read -rp "  Overwrite existing agent files? [y/N] " confirm
-  if [[ "${confirm,,}" != "y" ]]; then
+  confirm=$(printf '%s' "$confirm" | tr '[:upper:]' '[:lower:]')
+  if [[ "$confirm" != "y" ]]; then
     echo "Aborted."
     exit 0
   fi
@@ -170,6 +171,65 @@ if [[ -f "$LANG_RULE_SRC" ]]; then
 else
   echo -e "  ${YELLOW}⚠${NC}  No rule file found for lang '${LANG}' at rules/${LANG}-test-rule.mdc"
   echo "     Add your own at: $LANG_RULE_DST"
+fi
+
+# ── Install coverage-reminder hook ───────────────────────────────────────────
+
+echo ""
+echo "Installing PostToolUse coverage-reminder hook..."
+HOOK_SRC="$SCRIPT_DIR/hooks/coverage-reminder.sh"
+HOOK_DST="$TARGET_PROJECT/.claude/hooks/coverage-reminder.sh"
+if [[ -f "$HOOK_SRC" ]]; then
+  copy_file "$HOOK_SRC" "$HOOK_DST"
+  if ! $DRY_RUN; then
+    chmod +x "$HOOK_DST"
+  fi
+else
+  echo -e "  ${YELLOW}⚠${NC}  Missing: hooks/coverage-reminder.sh (skipped)"
+fi
+
+SETTINGS_DST="$TARGET_PROJECT/.claude/settings.json"
+if $DRY_RUN; then
+  echo "  [dry-run] merge hooks + permissions into $SETTINGS_DST"
+else
+  mkdir -p "$(dirname "$SETTINGS_DST")"
+  python3 - "$SETTINGS_DST" <<'PY'
+import json, os, sys
+path = sys.argv[1]
+data = {}
+if os.path.exists(path):
+    try:
+        with open(path) as f:
+            data = json.load(f)
+    except Exception:
+        data = {}
+perms = data.setdefault("permissions", {})
+allow = perms.setdefault("allow", [])
+for p in [
+    "Bash(mvn:*)", "Bash(./gradlew:*)", "Bash(gradle:*)",
+    "Write(src/test/**)", "Edit(src/test/**)",
+    "Write(test-memory-bank/**)", "Edit(test-memory-bank/**)",
+    "Bash(.claude/hooks/coverage-reminder.sh:*)",
+]:
+    if p not in allow:
+        allow.append(p)
+hooks = data.setdefault("hooks", {})
+post = hooks.setdefault("PostToolUse", [])
+hook_cmd = ".claude/hooks/coverage-reminder.sh"
+already = any(
+    any(h.get("command") == hook_cmd for h in entry.get("hooks", []))
+    for entry in post
+)
+if not already:
+    post.append({
+        "matcher": "Write|Edit",
+        "hooks": [{"type": "command", "command": hook_cmd}],
+    })
+with open(path, "w") as f:
+    json.dump(data, f, indent=2)
+    f.write("\n")
+PY
+  echo -e "  ${GREEN}✓${NC} merged hook + permissions into $SETTINGS_DST"
 fi
 
 # ── Create memory bank ────────────────────────────────────────────────────────
@@ -249,4 +309,9 @@ if ! $JACOCO_OK; then
 else
   echo "  2. Run: use run-tests to test [ClassName or package]"
 fi
+echo ""
+echo "Hook installed:"
+echo "  PostToolUse → .claude/hooks/coverage-reminder.sh"
+echo "  Reminds about /check-coverage when src/main/java/**/*.java changes."
+echo "  To disable: remove the PostToolUse entry from .claude/settings.json"
 echo ""

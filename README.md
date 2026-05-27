@@ -84,6 +84,9 @@ commands/
 ├── quick-test.md             # /quick-test — single class full cycle
 └── check-coverage.md         # /check-coverage — report coverage, no tests written
 
+hooks/
+└── coverage-reminder.sh      # PostToolUse — nudges /check-coverage after edits to src/main/java
+
 rules/
 ├── java-test-rule.mdc        # Language-specific test conventions
 └── test_isolation/
